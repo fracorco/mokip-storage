@@ -1,0 +1,48 @@
+# Q7bis. Time spent by trace <trace:.t7> 
+#
+# PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+# PREFIX bpmn: <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+# PREFIX moki: <https://dkm.fbk.eu/#>
+# PREFIX trace: <http://dkm.fbk.eu/Trace_Ontology#>
+# PREFIX ttrace: <http://dkm.fbk.eu/TTrace_Ontology#>
+# PREFIX ptrace: <http://dkm.fbk.eu/Pop_TTrace_Ontology#>
+# PREFIX shell: <http://shell.fbk.eu/custom_functions/>
+# 	
+# SELECT ?time
+# 	WHERE {	
+# 	BIND (<http://dkm.fbk.eu/Pop_TTrace_Ontology#trace/BirthManagement/Comune2@nomeComuneTest2@protocolloComuneTest_test2478> AS ?trti).
+# 	
+# 	{
+# 	    SELECT (MIN(?time) AS ?minTime)
+# 	    WHERE{
+# 	           ?trti trace:has_process_trace_flow_object ?fati.
+# 	           ?fati trace:initial_start_dateTime ?fatis.
+# 	           BIND (shell:timestamp(?fatis) AS ?time).
+# 	     }
+# 	}
+# 
+# 	{
+# 	    SELECT (MAX(?time) AS ?maxTime)
+# 	    WHERE{
+# 	           ?trti trace:has_process_trace_flow_object ?lati.
+# 	           ?fati trace:initial_start_dateTime ?latie.
+# 	           BIND (shell:timestamp(?latie) AS ?time).
+# 	     }
+# 	}
+# 	
+# 	BIND ((?maxTime - ?minTime) AS ?time).
+# 
+# 
+# }
+#
+
+PREFIX trace: <http://dkm.fbk.eu/Trace_Ontology#>
+PREFIX ofn:   <http://www.ontotext.com/sparql/functions/>
+	
+SELECT (ofn:asMillis(MAX(?activity_end) - MIN(?activity_start)) AS ?time)
+WHERE {
+  BIND (<trace:.t7> AS ?trace).
+  ?trace trace:has_process_trace_flow_object ?executed_activity.
+  ?executed_activity trace:initial_start_dateTime ?activity_start; trace:final_end_dateTime ?activity_end.
+}

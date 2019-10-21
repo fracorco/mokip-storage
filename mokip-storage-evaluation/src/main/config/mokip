@@ -1,0 +1,41 @@
+#!/bin/bash
+
+_PRG="$0"
+while [ -h "$_PRG" ]; do
+  _PRG_OLD=$_PRG
+  _PRG="$(readlink "$_PRG")"
+  [[ $_PRG != /* ]] && _PRG="$( cd -P "$( dirname "$_PRG_OLD" )" && pwd )/$_PRG"
+done
+_BASEDIR="$( cd -P "$( dirname "$_PRG" )" && pwd )"
+
+_JAVA="java"
+if [ -n "$JAVA_HOME"  ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        _JAVA="$JAVA_HOME/jre/sh/java"
+    elif [ -x "$JAVA_HOME/bin/java" ] ; then
+        _JAVA="$JAVA_HOME/bin/java"
+    fi
+fi
+
+COMMAND=""
+JVM_ARGS=""
+CMD_ARGS=""
+while [ $# -gt 0 ]; do
+  case $1 in
+    -X*|-D*=*) JVM_ARGS="$JVM_ARGS $1"; shift;;
+    *)         if [ "x$COMMAND" = "x" ]; then COMMAND="$1"; else CMD_ARGS="$CMD_ARGS $1"; fi; shift;;
+  esac
+done
+
+case $COMMAND in
+  eval-query) COMMAND=eu.fbk.pdi.promo.evaluation.QueryEvaluator;;
+  eval-store) COMMAND=eu.fbk.pdi.promo.evaluation.StoreEvaluator;;
+  store)      COMMAND=eu.fbk.pdi.promo.triplestore.TraceStorer;;
+  simulate)   COMMAND=eu.fbk.pdi.promo.simulation.Simulator;;     
+  *)          echo "Available commands: eval-query, eval-store, store, simulate"
+              echo "type 'mokip command --help' for help";;
+esac
+
+if [ ! "x$COMMAND" = "x" ]; then
+  exec $_JAVA $JAVA_OPTS -Djdk.xml.entityExpansionLimit=0 $JVM_ARGS -cp "$_BASEDIR:$_BASEDIR/software/mokip/*" -Dlogback.configurationFile=logback-mokip.xml $COMMAND $CMD_ARGS
+fi

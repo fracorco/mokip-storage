@@ -1,0 +1,47 @@
+# Q6bis. Last event of trace <trace:.t7>
+#
+# PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+# PREFIX bpmn: <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+# PREFIX moki: <https://dkm.fbk.eu/#>
+# PREFIX trace: <http://dkm.fbk.eu/Trace_Ontology#>
+# PREFIX ttrace: <http://dkm.fbk.eu/TTrace_Ontology#>
+# PREFIX ptrace: <http://dkm.fbk.eu/Pop_TTrace_Ontology#>
+# PREFIX shell: <http://shell.fbk.eu/custom_functions/>
+# 	
+# 	SELECT ?ati
+# 	WHERE {
+# 	
+# 	BIND (<http://dkm.fbk.eu/Pop_TTrace_Ontology#trace/BirthManagement/Comune2@nomeComuneTest2@protocolloComuneTest_test2478> AS ?trti)
+# 	
+#         ?trti trace:has_process_trace_flow_object ?ati.
+#         ?ati rdf:type ?aoc.
+#         ?aoi ttrace:associated_to ?aoc.
+#         ?aoi rdf:type bpmn:activity.
+# 	?ati trace:final_end_dateTime ?atie.
+# 	
+# 	FILTER NOT EXISTS {
+#         	?trti trace:has_process_trace_flow_object ?ati2.
+# 		?ati2 rdf:type ?aoc2.
+# 		?aoi2 ttrace:associated_to ?aoc2.
+# 		?aoi2 rdf:type bpmn:activity.
+# 		?ati2 trace:final_end_dateTime ?atie2.
+# 		FILTER (?ati2!=?ati).
+# 		FILTER (?atie2>?atie).
+# 	}
+# }
+
+PREFIX bpmn:  <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+PREFIX trace: <http://dkm.fbk.eu/Trace_Ontology#>
+
+SELECT ?executed_activity
+WHERE {
+  BIND (<trace:.t7> AS ?trace)
+  ?trace trace:has_process_trace_flow_object ?executed_activity.
+  ?executed_activity trace:final_end_dateTime ?activity_end; trace:execution_of / a bpmn:activity.
+  FILTER NOT EXISTS {
+    ?trace trace:has_process_trace_flow_object ?executed_activity2.
+    ?executed_activity2 trace:final_end_dateTime ?activity2_end; trace:execution_of / a bpmn:activity.
+    FILTER (?activity2_end > ?activity_end).
+  }
+}

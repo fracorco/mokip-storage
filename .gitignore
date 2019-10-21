@@ -1,0 +1,12 @@
+/.project
+/.settings
+*/.classpath
+*/.project
+*/.settings/
+*/.factorypath
+*/.pydevproject
+*/target/
+target/
+*.iml
+.idea/
+**/*.versionsBackup

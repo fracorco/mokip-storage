@@ -1,0 +1,73 @@
+# Q5. Number of times in which the municipality sends to SAIA a request without FC
+#
+# (note: FC is always supplied in trace data, so the answer is 0)
+#
+# PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+# PREFIX bpmn: <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+# PREFIX moki: <https://dkm.fbk.eu/#>
+# PREFIX trace: <http://dkm.fbk.eu/Trace_Ontology#>
+# PREFIX ttrace: <http://dkm.fbk.eu/TTrace_Ontology#>
+# PREFIX ptrace: <http://dkm.fbk.eu/Pop_TTrace_Ontology#>
+# PREFIX shell: <http://shell.fbk.eu/custom_functions/>
+# SELECT (COUNT (DISTINCT ?trti) AS ?total)
+# 	WHERE {	
+# 	?trti rdf:type ?troc.		
+# 	?troi ttrace:associated_to ?troc.		
+# 	?troi rdf:type bpmn:business_process_diagram.	
+#  	?troi rdf:type moki:BirthManagement.
+#  	
+#  	
+# 	?troi bpmn:has_business_process_diagram_pools ?pomi.
+# 	?pomi bpmn:has_pool_participant_ref ?parmi.
+# 	?parmi rdf:type  moki:Municipality.
+# 	?pomi bpmn:has_pool_process_ref ?procmi. 
+# 	
+# 	?procmi bpmn:has_process_graphical_elements ?aoi.
+# 	?aoi rdf:type bpmn:activity.
+# 	
+# 	?troi bpmn:has_business_process_diagram_pools ?posi.
+# 	?posi bpmn:has_pool_participant_ref ?parsi.
+# 	?parsi rdf:type moki:SAIA.
+# 	?posi bpmn:has_pool_process_ref ?procsi. 
+# 	
+# 	?procsi bpmn:has_process_graphical_elements ?eoi.
+# 	?eoi rdf:type bpmn:message_intermediate_event.
+# 	
+# 	?aoi bpmn:has_message_flow_source_ref_inv ?sf.
+# 	?sf bpmn:has_message_flow_target_ref ?eoi.
+# 
+# 	?aoi ttrace:associated_to ?aoc.
+# 	?ati rdf:type ?aoc.
+# 	?ati moki:hasOutputField ?field.
+# 	?field rdf:type moki:AP5Request.PersonalDetails.CF.
+# 	FILTER NOT EXISTS {
+# 		?field moki:value ?value.
+# 	}
+# 
+# }
+
+PREFIX bpmn:   <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+PREFIX domain: <https://dkm.fbk.eu/#>
+PREFIX trace:  <http://dkm.fbk.eu/Trace_Ontology#>
+
+SELECT (COUNT (DISTINCT ?executed_activity) AS ?total)
+WHERE {	
+  ?bpd a bpmn:business_process_diagram, domain:BirthManagement;
+       bpmn:has_business_process_diagram_pools [
+           bpmn:has_pool_participant_ref / a domain:Municipality;
+           bpmn:has_pool_process_ref / bpmn:has_process_graphical_elements ?bpd_activity
+       ], [
+           bpmn:has_pool_participant_ref / a domain:SAIA;
+           bpmn:has_pool_process_ref / bpmn:has_process_graphical_elements ?bpd_event
+       ].
+
+  ?bpd_event a bpmn:message_intermediate_event.
+  ?bpd_activity a bpmn:activity;
+      ^bpmn:has_message_flow_source_ref / bpmn:has_message_flow_target_ref ?bpd_event.
+
+  ?executed_activity trace:execution_of ?bpd_activity; domain:hasOutputField ?field.
+  
+  ?field trace:execution_of / a domain:AP5Request.PersonalDetails.CF.
+  FILTER NOT EXISTS { ?field domain:value ?value }
+}

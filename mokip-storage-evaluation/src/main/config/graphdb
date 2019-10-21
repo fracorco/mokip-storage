@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Identify location of this script
+_PRG="$0"
+while [ -h "$_PRG" ]; do
+  _PRG_OLD=$_PRG
+  _PRG="$(readlink "$_PRG")"
+  [[ $_PRG != /* ]] && _PRG="$( cd -P "$( dirname "$_PRG_OLD" )" && pwd )/$_PRG"
+done
+_BASEDIR="$( cd -P "$( dirname "$_PRG" )" && pwd )"
+
+# Check that GraphDB binaries are available
+if [ ! -d "software/graphdb/bin" ]; then
+  echo "Please obtain and install GraphDB binaries under 'softaware/graphdb'"
+  exit
+fi
+
+# Identify location of graphdb scripts
+GRAPHDB_HOME=`cd software/graphdb/bin && pwd`
+
+# Use first argument as the command to execute
+COMMAND=$1; shift
+
+# Split remaining arguments between JVM and command arguments
+JVM_ARGS=""
+CMD_ARGS=""
+while [ $# -gt 0 ]; do
+  case $1 in
+    -X*|-D*=*) JVM_ARGS="$JVM_ARGS $1"; shift;;
+    *)         CMD_ARGS="$CMD_ARGS $1"; shift;;
+  esac
+done
+
+# Append JVM arguments to variable GDB_JAVA_OPTS, which is picked up by GraphDB scripts
+export GDB_JAVA_OPTS="$GDB_JAVA_OPTS -Dgraphdb.home.conf=$_BASEDIR $JVM_ARGS"
+
+function log {
+  echo "$1"
+}
+
+# Differentiate by command
+case $COMMAND in
+  status|start|stop|run)
+    INSTANCE_HOME=`cd $CMD_ARGS && pwd`
+    PORT=`cat graphdb.properties | grep graphdb.connector.port | sed -E 's/[^0-9]+([0-9]+)[^0-9]*/\1/'`
+    PID=`ps x | grep " -Dgraphdb.home.conf" | grep "$INSTANCE_HOME" | grep -v grep | sed -E 's/[ ]*([0-9]+) .*/\1/'`
+    log "GraphDB Home:  $GRAPHDB_HOME"
+    log "Instance Home: $INSTANCE_HOME"
+    log "Conf Home:     $_BASEDIR"
+    log "Port:          $PORT"
+    if [ "x$PID" != "x" ]; then
+      log "PID:           $PID"
+      if [ "$COMMAND" == "start" ] || [ "$COMMAND" == "run" ]; then
+        log "Cannot $COMMAND server: already running"
+        exit 1
+      elif [ "$COMMAND" == "stop" ]; then
+        echo "Stopping server ..."
+        kill $PID
+        tail --pid=$PID -f /dev/null
+        echo "Done"
+      fi
+    else
+      if [ "$COMMAND" == "run" ]; then
+        log "Starting server in foreground ..."
+        $GRAPHDB_HOME/graphdb -Dgraphdb.home=$INSTANCE_HOME
+      elif [ "$COMMAND" == "start" ]; then
+        log "Starting server in background ..."
+        $GRAPHDB_HOME/graphdb -Dgraphdb.home=$INSTANCE_HOME &> /dev/null &
+        log "PID:           $!"
+        until curl "http://localhost:$PORT/repositories" &> /dev/null; do sleep 0.1; done
+        log "Done"
+      elif [ "$COMMAND" == "stop" ]; then
+        log "Cannot stop server: already stopped"
+      elif [ "$COMMAND" == "status" ]; then
+        log "PID:           server not running"
+      fi
+    fi
+    ;;
+  stopall)
+    while true
+    do
+      PID=`ps x | grep " -Dgraphdb.home.conf" | grep -v grep | sed -E 's/[ ]*([0-9]+) .*/\1/'`
+      if [ "x$PID" == "x" ]; then break; fi
+      echo "Stopping server with PID $PID"
+      kill $PID
+      tail --pid=$PID -f /dev/null
+      echo "Done"
+    done
+    ;;
+  *)
+    exec $GRAPHDB_HOME/$COMMAND $CMD_ARGS
+    ;;
+esac

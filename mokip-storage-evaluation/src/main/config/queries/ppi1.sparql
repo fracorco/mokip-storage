@@ -1,0 +1,93 @@
+# PP1_bis Average time per process execution spent by the municipality <http://dkm.fbk.eu/index.php/ABPMN_Ontology#participant@pool@oryx_08C97730-8889-48FC-AFAF-472E46456BF8> 
+# 
+# note: there is no moki:Municipality instance that is execution_of the instance supplied.
+# i.e., the following pattern yields no results:
+#   { ?x a moki:Municipality; ^trace:execution_of ?pari }
+# that corresponds to:
+#   { ?x a moki:Comune; ttrace:associated_to / ^rdf:type ?pari }
+# query has been revised accordingly, matching the BPD municipality instance
+#
+# PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+# PREFIX bpmn: <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+# PREFIX moki: <https://dkm.fbk.eu/#>
+# PREFIX trace: <http://dkm.fbk.eu/Trace_Ontology#>
+# PREFIX ttrace: <http://dkm.fbk.eu/TTrace_Ontology#>
+# PREFIX ptrace: <http://dkm.fbk.eu/Pop_TTrace_Ontology#>
+# PREFIX shell: <http://shell.fbk.eu/custom_functions/>
+# 	
+# 	SELECT (AVG(?time) AS ?avgtime)
+# 	WHERE {	
+# 	BIND (<http://dkm.fbk.eu/Pop_TTrace_Ontology#actor/ef1badde-1dca-4c13-8515-4fe7327a9227.>  AS ?pari)
+# 	
+# 	?trti rdf:type ?troc.	
+# 	?troi ttrace:associated_to ?troc.		
+# 	?troi rdf:type bpmn:business_process_diagram.	
+#  	?troi rdf:type moki:BirthManagement.
+# 
+# 	?troi bpmn:has_business_process_diagram_pools ?poi.
+# 	?poi bpmn:has_pool_participant_ref ?paro.
+# 	?paro rdf:type moki:Municipality.
+# 
+# 	?paro ttrace:associated_to ?parc.
+# 	?pari rdf:type ?parc.
+# 
+# 	
+# 	{
+# 	    SELECT (MIN(?time) AS ?minTime)
+# 	    WHERE{
+# 	           ?trti trace:has_process_trace_flow_object ?fati.
+# 	           ?fati trace:initial_start_dateTime ?fatis.
+# 	           BIND (shell:timestamp(?fatis) AS ?time).
+# 	     }
+# 	}
+# 
+# 	{
+# 	    SELECT (MAX(?time) AS ?maxTime)
+# 	    WHERE{
+# 	           ?trti trace:has_process_trace_flow_object ?lati.
+# 	           ?fati trace:initial_start_dateTime ?latie.
+# 	           BIND (shell:timestamp(?latie) AS ?time).
+# 	     }
+# 	}
+# 	
+# 	BIND ((?maxTime - ?minTime) AS ?time).
+# }
+
+# Query using fn:timestamp function
+#
+# PREFIX bpmn:   <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+# PREFIX domain: <https://dkm.fbk.eu/#>
+# PREFIX trace:  <http://dkm.fbk.eu/Trace_Ontology#>
+# PREFIX fn:  <http://shell.fbk.eu/custom_functions/>
+# 	
+# SELECT (AVG(?trace_time) AS ?average_time)
+# WHERE {
+#   SELECT ?trace (MAX(fn:timestamp(?date_end)) - MIN(fn:timestamp(?date_start)) AS ?trace_time)
+#   WHERE {	
+#     BIND (<http://dkm.fbk.eu/index.php/ABPMN_Ontology#participant@pool@oryx_08C97730-8889-48FC-AFAF-472E46456BF8>  AS ?municipality)
+#     ?bpd a bpmn:business_process_diagram, domain:BirthManagement;
+#          bpmn:has_business_process_diagram_pools / bpmn:has_pool_participant_ref ?municipality.
+#     ?trace trace:execution_of ?bpd; trace:has_process_trace_flow_object ?executed_activity.
+#     ?executed_activity trace:initial_start_dateTime ?date_start; trace:final_end_dateTime ?date_end.
+#   }
+#   GROUP BY ?trace
+# }
+
+PREFIX bpmn:   <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+PREFIX domain: <https://dkm.fbk.eu/#>
+PREFIX trace:  <http://dkm.fbk.eu/Trace_Ontology#>
+PREFIX ofn:    <http://www.ontotext.com/sparql/functions/>
+	
+SELECT (AVG(ofn:asMillis(?trace_end - ?trace_start)) AS ?average_time)
+WHERE {
+  SELECT ?trace (MIN(?activity_start) AS ?trace_start) (MAX(?activity_end) AS ?trace_end)
+  WHERE {	
+    BIND (<http://dkm.fbk.eu/index.php/ABPMN_Ontology#participant@pool@oryx_08C97730-8889-48FC-AFAF-472E46456BF8>  AS ?municipality)
+    ?bpd a bpmn:business_process_diagram, domain:BirthManagement;
+         bpmn:has_business_process_diagram_pools / bpmn:has_pool_participant_ref ?municipality.
+    ?trace trace:execution_of ?bpd; trace:has_process_trace_flow_object ?executed_activity.
+    ?executed_activity trace:initial_start_dateTime ?activity_start; trace:final_end_dateTime ?activity_end.
+  }
+  GROUP BY ?trace
+}

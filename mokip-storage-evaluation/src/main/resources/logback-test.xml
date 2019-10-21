@@ -1,0 +1,27 @@
+<configuration>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>TRACE</level>
+		</filter>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{HH:mm:ss.SSS}\(%.-1level\) %msg [%logger{5}]%n%rEx{full}
+			</pattern>
+		</encoder>
+	</appender>
+
+	<root level="WARN">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+	<logger name="eu.fbk.pdi.promo" level="INFO" />
+	<logger name="com.ontotext.GraphDBConfigParameters" level="ERROR" />
+	<logger name="com.ontotext.plugin.literals-index" level="ERROR" />
+	<logger name="com.ontotext.trree.free.GraphDBFreeSchemaRepository"
+		level="ERROR" />
+	<logger name="com.ontotext.trree.SailConnectionImpl" level="FATAL" />
+	<logger name="org.eclipse.rdf4j.repository.sail.SailUpdate"
+		level="FATAL" />
+
+
+</configuration>

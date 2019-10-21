@@ -1,0 +1,37 @@
+# PPI4 as in the paper - Number of cases and avg. time spent for optional activities by public offices involved in the birth management process.
+
+PREFIX bpmn:   <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+PREFIX domain: <https://dkm.fbk.eu/#>
+PREFIX trace:  <http://dkm.fbk.eu/Trace_Ontology#>
+PREFIX ofn:    <http://www.ontotext.com/sparql/functions/>
+
+SELECT ?office_name ?activity_name (COUNT(?t) AS ?executions) (AVG(?t) AS ?time)
+WHERE {
+  [] a bpmn:business_process_diagram, domain:BirthManagement;  # retrieve process 
+    bpmn:has_business_process_diagram_pools [                  # and public office
+      bpmn:has_pool_participant_ref [                          # participants for
+        a domain:PublicOffice;                                 # each pool of the
+        bpmn:has_participant_name ?office_name ];              # birth management
+      bpmn:has_pool_process_ref ?process ].                    # process diagram
+
+  ?process bpmn:has_process_graphical_elements                 # require the  
+      ?gateway1, ?gateway2, ?activity.                         # participant process
+                                                               # to contain two 
+  ?gateway1 a bpmn:gateway;                                    # gateways and an  
+    bpmn:is_directly_connected_via_sequence_flow ?gateway2;    # activity connected
+    bpmn:is_connected_via_sequence_flow ?activity.             # by two paths: 
+                                                               # - a direct path
+  ?gateway2 a bpmn:gateway.                                    #   between gateways
+                                                               # - an indirect
+  ?activity a bpmn:activity;                                   #   path passing 
+    bpmn:has_flow_object_name ?activity_name;                  #   through the 
+    bpmn:is_connected_via_sequence_flow ?gateway2.             #   activity     
+
+  OPTIONAL {                                                   # if the activity 
+    ?activity_execution trace:execution_of ?activity;          # was performed, 
+      trace:initial_start_dateTime ?start;                     # get its execution 
+      trace:final_end_dateTime ?end.                           # time using the 
+    BIND (ofn:asMillis(?end - ?start) AS ?t)                   # custom function 
+  }                                                            # fn:timestamp
+}
+GROUP BY ?office_name ?activity_name

@@ -1,0 +1,26 @@
+# Q8. Does the trace <trace:.t7> pass through the activity labeled with "Present at the hospital"?
+# 
+# PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+# PREFIX bpmn: <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+# PREFIX moki: <https://dkm.fbk.eu/#>
+# PREFIX trace: <http://dkm.fbk.eu/Trace_Ontology#>
+# PREFIX ttrace: <http://dkm.fbk.eu/TTrace_ontology#>
+# PREFIX ptrace: <http://dkm.fbk.eu/Pop_TTrace_Ontology#>
+# 	ASK {
+# 		BIND(<http://dkm.fbk.eu/Pop_TTrace_Ontology#trace/BirthManagement/Comune2@nomeComuneTest2@protocolloComuneTest_test2478> AS ?trti)
+# 		?trti trace:has_process_trace_flow_object ?ati.	
+# 		?aoi ttrace:associated_to ?aoc.		
+# 		?aoi rdf:type bpmn:flow_object.		
+# 		?aoi rdf:type moki:ShowInHospital.
+# 		?ati rdf:type ?aoc.	
+# 	}
+
+PREFIX bpmn:   <http://dkm.fbk.eu/index.php/BPMN_Ontology#>
+PREFIX domain: <https://dkm.fbk.eu/#>
+PREFIX trace:  <http://dkm.fbk.eu/Trace_Ontology#>
+
+ASK {
+  BIND(<trace:.t7> AS ?trace)
+  ?trace trace:has_process_trace_flow_object / trace:execution_of / a bpmn:flow_object, domain:ShowInHospital.
+}
