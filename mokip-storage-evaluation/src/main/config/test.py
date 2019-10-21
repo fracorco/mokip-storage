@@ -232,22 +232,22 @@ def run_experiments(size, approach):
   """
 
   # Create folder (if needed) where to store query evaluation logs and raw results
-  if not os.path.isdir(f"{path_reports}/eval-query"):
-    shell(f"mkdir -p {path_reports}/eval-query")
+  if not os.path.isdir(f"{path_reports}/eval-query-{current_run}"):
+    shell(f"mkdir -p {path_reports}/eval-query-{current_run}")
 
   # Create folder (if needed) where to store store evaluation logs and raw results
-  if not os.path.isdir(f"{path_reports}/eval-store"):
-    shell(f"mkdir -p {path_reports}/eval-store")
+  if not os.path.isdir(f"{path_reports}/eval-store-{current_run}"):
+    shell(f"mkdir -p {path_reports}/eval-store-{current_run}")
 
   # Helper function computing the path of a file/folder for the given query evaluation iteration 
   def query_path(iteration, filename=None):
     folder = size["id"] + "_" + str(iteration)
-    return path_reports + "/eval-query/" + folder + ("/" + filename if filename != None else "") 
+    return path_reports + "/eval-query-" + current_run + "/" + folder + ("/" + filename if filename != None else "") 
 
   # Helper function computing the path of a file/folder for the given store evaluation test / cpu setting
   def store_path(test, cpu, filename=None):
     folder = size["id"] + "_" + approach["id"] + "_" + test + ("_" + cpu["id"] if cpu != None else "")
-    return path_reports + "/eval-store/" + folder + ("/" + filename if filename != None else "")
+    return path_reports + "/eval-store-" + current_run + "/" + folder + ("/" + filename if filename != None else "")
     
   # Determine whether partial traces and named graphs are supported
   partial = approach["supports_partial"]

@@ -52,7 +52,7 @@ def aggregate_repository_statistics():
     row["approach"] = approach["id"]
     
     # Append row to result
-    df = row if df is None else df.append(row, ignore_index=True)
+    df = row if df is None else df.append(row, ignore_index=True, sort=True)
   
   # Return the collectd data frame
   return df
@@ -425,20 +425,22 @@ def plot_store_comparison_heatmap(df, test, system, baseline):
   y = dfs["numThreads"].to_numpy()
   z = dfs["delta"].to_numpy()
   
-  # Matplotlib / scipy magic to interpolate a surface given the <x, y, z> points
-  xi, yi = np.mgrid[0:(sty_max_size_r + 0.75):50j, 0:sty_max_threads:50j]
-  zi = griddata((x, y), z, (xi, yi), method='cubic', rescale=True)
-  f = SmoothBivariateSpline(x, y, z)
-  zii = f(xi, yi, grid=False)
+  # Display heat map only if there are enough data points for the interpolation (3x3 grid)
+  if len(x) >= 9:
+    # Matplotlib / scipy magic to interpolate a surface given the <x, y, z> points
+    xi, yi = np.mgrid[0:(sty_max_size_r + 0.75):50j, 0:sty_max_threads:50j]
+    zi = griddata((x, y), z, (xi, yi), method='cubic', rescale=True)
+    f = SmoothBivariateSpline(x, y, z, kx=2, ky=2) # 3*3 x*y matrix minimum required (!)
+    zii = f(xi, yi, grid=False)
 
-  # Generate heat map (i.e., color surface based on interpolated zii values)
-  cmap = truncate_colormap(plt.cm.RdBu, .3, .7)
-  plt.contourf(xi, yi, zii, 100, cmap=cmap, alpha=1, vmin=-1, vmax=1)
+    # Generate heat map (i.e., color surface based on interpolated zii values)
+    cmap = truncate_colormap(plt.cm.RdBu, .3, .7)
+    plt.contourf(xi, yi, zii, 100, cmap=cmap, alpha=1, vmin=-1, vmax=1)
   
-  # Display color bar
-  label = sty_title_heatmap["rdfs" if system["inference"] == "local_graphdb_rdfs" else "owl2rl"]
-  cbar = plt.colorbar(fraction=.13, format=FuncFormatter(lambda x, pos: "{:+.0%}".format(x)))
-  cbar.set_label(label)
+    # Display color bar
+    label = sty_title_heatmap["rdfs" if system["inference"] == "local_graphdb_rdfs" else "owl2rl"]
+    cbar = plt.colorbar(fraction=.13, format=FuncFormatter(lambda x, pos: "{:+.0%}".format(x)))
+    cbar.set_label(label)
    
   # Display scatter plot with grid of delta values
   for i in range(len(x)):

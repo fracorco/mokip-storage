@@ -99,7 +99,7 @@ cpus = [ cpu_1t, cpu_2t, cpu_4t, cpu_6t, cpu_8t, cpu_10t, cpu_12t ]  # only the 
 # across runs we filter out "bad results" due to background activity on the test machine.
 #
 current_run = "run1"          # the run to consider when running tests
-analysis_runs = [ "run1", "run2", "run3" ]    # the run(s) to consider when analyzing test results and generating plots
+analysis_runs = [ "run1" ]    # the run(s) to consider when analyzing test results and generating plots
 
 #
 # Queries (PPIs)
