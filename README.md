@@ -3,8 +3,8 @@ This repository contains the Java code implementing the storage solution of MoKi
 
 ## Repository organization
 This repository consists of a multi-module Maven project with 3 modules:
-* `mokip-storage-backend` - the implementation of MoKiP backend, in Java 8
-* `mokip-storage-functions` - optional additional RDF4J SPARQL functions for use with MoKiP (used in ProMo, not in the evaluation)
+* `mokip-storage-backend` - the implementation of MoKiP backend, providing the Java 8 classes TraceStorer, TraceConverter, and Inferencer used in MokiP
+* `mokip-storage-functions` - optional additional RDF4J SPARQL functions for use with MoKiP (not used in the evaluation)
 * `mokip-storage-evaluation` - evaluation code, consisting of a Java synthetic trace simulator, query and population test drivers, plus some python scripts managing the evaluation workflow
 
 ## How to compile
@@ -13,7 +13,8 @@ The following command compiles all the Java code and generates all the binary ar
 mvn clean package -DskipTests -Prelease
 ```
 The profile `release` enables the generation of all the artifacts. If omitted, only the JAR files with the binaries for each Maven module are generated.
-After running the above command, the compressed archive `mokip-storage-evaluation/target/mokip-storage-evaluation-<VERSION>.tar.gz` contains all the code and input material necessary for the evaluation (see next section).
+The jars for the `mokip-storage-backend` and `mokip-storage-functions` modules are the only ones to be used in MoKiP, together with GraphDB, RDF4J and RDFpro dependencies.
+The compressed archive `mokip-storage-evaluation/target/mokip-storage-evaluation-<VERSION>.tar.gz` contains all the code and input material necessary for the evaluation (see next section).
 
 ## How to reproduce the evaluation
 Requirements:
