@@ -18,7 +18,7 @@ The compressed archive `mokip-storage-evaluation/target/mokip-storage-evaluation
 
 ## How to reproduce the evaluation
 Requirements:
-* the *binaries* of MoKiP evaluation code, which can be obtained by compiling the code (see previous section) or by downloading them from https://1drv.ms/u/s!AmO2yjPKzVAK9VaTrPj23d69wHNc?e=5Np7OP (33 MB)
+* the *binaries* of MoKiP evaluation code, which can be obtained by compiling the code (see previous section) or by downloading them from https://drive.google.com/open?id=1neap38gHJ_KJgFb5B0y6qqmAXq08BpA- (33 MB)
 * a *test machine* with at least 300GB hard drive (at least 200GB should be SSD). A large amount of RAM is also recommended in order to simulate the largest data sets (up to 500000 traces for 1.5B triples).
 * the binaries of *GraphDB standard edition*. This version of GraphDB is not limited in terms of number of accessible CPU cores, however it is not free. You may download it and apply for an evaluation license of 2 months at the following link: https://www.ontotext.com/products/graphdb/graphdb-standard/. Technically, the fre edition of GraphDB will also work, but it will provide reduced performance due to its limitations
 * optionally, to save some computation time, some *precomputed data* available at https://1drv.ms/u/s!AmO2yjPKzVAK9R6jOOLd7qRYhwrU?e=pyERbR (74 GB)
@@ -32,5 +32,5 @@ Instructions:
 * execute `./analyze.py` to process the data under `reports` to extract the measures and generate the plots used in the paper, in folder `analysis`
 
 The latest results of the evaluation of MoKiP are available online:
-* `analysis.tar.gz` contains the aggregated TSV results and the corresponding plots - https://1drv.ms/u/s!AmO2yjPKzVAK9VchYXuQIRjeRNEK?e=BCRlHZ (1 MB)
-* `reports.tar.gz` contains the raw TSV results and the corresponding logs - https://1drv.ms/u/s!AmO2yjPKzVAK9VivobLzzNo-yz-j?e=s49pJM (64 MB)
+* `analysis.tar.gz` contains the aggregated TSV results and the corresponding plots - https://drive.google.com/open?id=16L9CY0Zz3NK9x4SwNCPfCF73nXddQIij (1 MB)
+* `reports.tar.gz` contains the raw TSV results and the corresponding logs - https://drive.google.com/open?id=19X_4vDFVwFREfy-xg8UL3YP-6phIf3yl (64 MB)
