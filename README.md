@@ -21,7 +21,7 @@ Requirements:
 * the *binaries* of MoKiP evaluation code, which can be obtained by compiling the code (see previous section) or by downloading them from https://drive.google.com/open?id=1neap38gHJ_KJgFb5B0y6qqmAXq08BpA- (33 MB)
 * a *test machine* with at least 300GB hard drive (at least 200GB should be SSD). A large amount of RAM is also recommended in order to simulate the largest data sets (up to 500000 traces for 1.5B triples).
 * the binaries of *GraphDB standard edition*. This version of GraphDB is not limited in terms of number of accessible CPU cores, however it is not free. You may download it and apply for an evaluation license of 2 months at the following link: https://www.ontotext.com/products/graphdb/graphdb-standard/. Technically, the fre edition of GraphDB will also work, but it will provide reduced performance due to its limitations
-* optionally, to save some computation time, some *precomputed data* available at https://1drv.ms/u/s!AmO2yjPKzVAK9R6jOOLd7qRYhwrU?e=pyERbR (74 GB)
+* optionally, to save some computation time, some *precomputed data* available at https://drive.google.com/open?id=1OCS_U0k54JNtd_bhLBjYn0JeKkEhsrPc (74 GB)
 
 Instructions:
 * extract `mokip-storage-evaluation-<VERSION>.tar.gz` on some SSD partition on the test machine (note: sub-folder `data` may be symbolically linked to an HDD location, in order to use only ~200GB of SSD instead of ~300GB, the remaining ~100GB being stored on the HDD);
